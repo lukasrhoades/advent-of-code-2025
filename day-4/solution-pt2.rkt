@@ -5,9 +5,14 @@
 
 (define in (open-input-file "input.txt"))
 
+(define (file-reader file res)
+  (let ((line (read-line file)))
+    (if (eof-object? line)
+        res
+        (file-reader file (append res (list line))))))
+
 (define (multi-grid grid total-sum)
-  (let ((new-gs (grid-search #f
-                             prev-line
+  (let ((new-gs (grid-search prev-line
                              (regexp-match* #px"\\S{1}"
                                             (car grid))
                              0
@@ -19,50 +24,26 @@
           total-sum
           (multi-grid new-grid (+ total-sum new-sum))))))
 
-(define (grid-search first? prev curr next res curr-grid new-grid)
-  (if first?
-      (let ((next (read-line in)))
-        (if (eof-object? next)
-            (let ((last-row-check
-                    (check-adjacent 0 prev curr last-line "" 0)))
-              (cons (+ res (car last-row-check))
-                    (append new-grid (list (cdr last-row-check)))))
-            (let ((next-list (regexp-match* #px"\\S{1}" next)))
-              (let ((row-check (check-adjacent
-                                 0
-                                 prev
-                                 curr
-                                 next-list
-                                 ""
-                                 0)))
-                (grid-search #t
-                             curr
-                             next-list
-                             0
-                             (+ res (car row-check))
-                             curr-grid
-                             (append new-grid (list (cdr row-check))))))))
-      (if (null? curr-grid)
-          (let ((last-row-check
-                  (check-adjacent 0 prev curr last-line "" 0)))
-            (cons (+ res (car last-row-check))
-                  (append new-grid (list (cdr last-row-check)))))
-          (let ((next (car curr-grid)))
-            (let ((next-list (regexp-match* #px"\\S{1}" next)))
-              (let ((row-check (check-adjacent
-                                 0
-                                 prev
-                                 curr
-                                 next-list
-                                 ""
-                                 0)))
-                (grid-search #f
-                             curr
-                             next-list
-                             0
-                             (+ res (car row-check))
-                             (cdr curr-grid)
-                             (append new-grid (list (cdr row-check))))))))))
+(define (grid-search prev curr next res curr-grid new-grid)
+  (if (null? curr-grid)
+      (let ((last-row-check
+              (check-adjacent 0 prev curr last-line "" 0)))
+        (cons (+ res (car last-row-check))
+              (append new-grid (list (cdr last-row-check)))))
+      (let ((next (car curr-grid)))
+        (let ((next-list (regexp-match* #px"\\S{1}" next)))
+          (let ((row-check (check-adjacent 0
+                                           prev
+                                           curr
+                                           next-list
+                                           ""
+                                           0)))
+            (grid-search curr
+                         next-list
+                         0
+                         (+ res (car row-check))
+                         (cdr curr-grid)
+                         (append new-grid (list (cdr row-check)))))))))
 
 (define (check-adjacent i prev curr-row next new-row sum)
   (let ((len (length curr-row)))
@@ -117,8 +98,9 @@
         ((= i 0) (car list))
         (else (index (- i 1) (cdr list)))))
 
-(define first-line (regexp-match* #px"\\S{1}" (read-line in)))
-(define len (length first-line))
+(define first-line (read-line in))
+(define list-fl (regexp-match* #px"\\S{1}" first-line))
+(define len (length list-fl))
 (define (builder len char)
   (if (= len 0)
       '()
@@ -126,5 +108,6 @@
 (define prev-line (builder len "."))
 (define last-line prev-line)
 
-(define initial (grid-search #t prev-line first-line 0 0 0 '()))
-(multi-grid (cdr initial) (car initial))
+(define initial-grid (file-reader in (list first-line)))
+
+(multi-grid initial-grid 0)
