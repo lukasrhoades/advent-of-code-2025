@@ -1,7 +1,6 @@
 #!/usr/bin/env racket
 #lang racket/base
 
-(require racket/port)
 (require racket/string)
 (require racket/list)
 (require racket/set)
@@ -25,17 +24,14 @@
       (list (map string->number (string-split x ","))))
     '()))
 
-(define (distance-matrix nodes)
-  (sort (flatmap (lambda (x)
-                   (distances x nodes))
-                 nodes)
-        (lambda (x y)
-          (< (car x) (car y)))))
-
-(define (distances one-node all-nodes)
-  (map (lambda (x)
-         (distance one-node x))
-       all-nodes))
+(define (distance-matrix curr-node remaining-nodes)
+  (if (null? remaining-nodes)
+      '()
+      (append (flatmap (lambda (x)
+                         (list (distance curr-node x)))
+                       remaining-nodes)
+              (distance-matrix (car remaining-nodes)
+                               (cdr remaining-nodes)))))
 
 (define (distance node1 node2)
   (let ((x1 (car node1)) (x2 (car node2))
@@ -56,13 +52,13 @@
       (op (car seq)
           (accumulate op init (cdr seq)))))
 
-(define num-same-nodes (length input))
-; the first 1000 entries will be the same node
-(define dist-matrix (list-tail (distance-matrix input)
-                               num-same-nodes))
+(define dist-matrix 
+  (sort (distance-matrix (car input) (cdr input))
+        (lambda (x y)
+          (< (car x) (car y)))))
 
-; find the first 1000 pairs (including duplicates)
-(define proc-input (take dist-matrix 2000))
+; connect the first 1000 pairs
+(define proc-input (take dist-matrix 1000))
 
 (define (size-circuits input)
   (product-circuit (circuit-builder input '())))
@@ -70,17 +66,14 @@
 (define (circuit-builder input circuits)
   (if (null? input)
       circuits
-      (let ((curr-pair (car input))
-            (potential-next (cadr input)))
+      (let ((curr-pair (car input)))
         (let ((juncbox1 (cadr curr-pair))
               (juncbox2 (caddr curr-pair)))
           (let ((new-circuits
                   (add-circuit juncbox1
                                juncbox2
                                circuits)))
-            ; use cddr to skip duplicates
-            ; avoids going thru whole dist matrix
-            (circuit-builder (cddr input)
+            (circuit-builder (cdr input)
                              new-circuits))))))
 
 (define (add-circuit jb1 jb2 circuits)
