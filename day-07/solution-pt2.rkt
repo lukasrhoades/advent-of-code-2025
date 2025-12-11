@@ -1,7 +1,6 @@
 #!/usr/bin/env racket
 #lang racket/base
 
-(require racket/port)
 (require racket/list)
 
 (define in (open-input-file "input.txt"))

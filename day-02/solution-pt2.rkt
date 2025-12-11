@@ -1,9 +1,7 @@
 #!/usr/bin/env racket
 #lang racket/base
 
-(require racket/port)
 (require racket/string)
-(require rebellion/base/converter)
 
 (define in (open-input-file "input.txt"))
 

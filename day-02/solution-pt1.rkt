@@ -1,10 +1,7 @@
 #!/usr/bin/env racket
 #lang racket/base
 
-(require racket/port)
 (require racket/string)
-(require megaparsack megaparsack/text)
-(require rebellion/base/converter)
 
 (define in (open-input-file "input.txt"))
 
@@ -47,7 +44,7 @@
           (let ((a (substring id 0 half))
                 (b (substring id half)))
             (if (equal? a b)
-                (parse-result! (parse-string integer/p id))
+                (string->number id)
                 0))))))
 (define (odd? x)
   (not (= (remainder x 2) 0)))

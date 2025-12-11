@@ -1,8 +1,6 @@
 #!/usr/bin/env racket
 #lang racket/base
 
-(require racket/port)
-
 (define in (open-input-file "input.txt"))
 
 (define (file-reader file)

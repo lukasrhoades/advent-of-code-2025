@@ -1,9 +1,6 @@
 #!/usr/bin/env racket
 #lang racket/base
 
-(require racket/port)
-(require rebellion/base/converter)
-
 (define in (open-input-file "input.txt"))
 
 (define (sum-volts input count)

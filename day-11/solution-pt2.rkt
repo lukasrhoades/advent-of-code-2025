@@ -55,8 +55,8 @@
 (define cache (make-hash))
 
 (define (try-cache procedure-call)
-  (let ((miss? (hash-ref cache procedure-call "miss")))
-    (cond ((equal? miss? "miss")
+  (let ((hit-or-miss (hash-ref cache procedure-call "miss")))
+    (cond ((equal? hit-or-miss "miss")
            (let ((result
                    ((car procedure-call)
                     (cadr procedure-call)
@@ -64,7 +64,7 @@
                     (cadddr procedure-call))))
              (hash-set! cache procedure-call result)
              result))
-          (else miss?))))
+          (else hit-or-miss))))
 
 (define (get-neighbors key)
   (hash-ref graph key))

@@ -1,9 +1,7 @@
 #!/usr/bin/env racket
 #lang racket/base
 
-(require racket/port)
 (require racket/string)
-(require megaparsack megaparsack/text)
 
 (define in (open-input-file "input.txt"))
 
@@ -11,11 +9,9 @@
   (if (eof-object? input)
       count
       (let ((split (string-split input #px"(?<=\\D)")))
-        (let ((direction
-                (parse-result! (parse-string letter/p (car split))))
-              (distance
-                (parse-result! (parse-string integer/p (cadr split)))))
-          (let ((dirop (if (eq? direction #\L) - +)))
+        (let ((direction (car split))
+              (distance (string->number (cadr split))))
+          (let ((dirop (if (equal? direction "L") - +)))
             (let ((newpos (dial (dirop currpos distance) 100)))
               (if (= 0 newpos)
                   (rotator (read-line in) newpos (+ count 1))
